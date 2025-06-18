@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <title>Timing Boss Tracker</title>
   <!-- Select2 CSS -->
-  <link rel="icon" href="/datdeptrai.ico" type="image/x-icon">
+    <link rel="icon" href="/datdeptrai.ico" type="image/x-icon">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    .table-warning {
+  background-color: #fff3cd !important;
+}
   .select2-selection__arrow {
   
   top: 5px !important;
@@ -81,11 +84,14 @@ td.boss-cell {
         </select>
       </div>
       <div class="col-md-3">
-        <label id="labelChannelSelect" class="form-label">Channel:</label>
+        <label id="labelChannelSelect" class="form-label">Stage:</label>
         <select class="form-select select2" id="channelSelect">
-          <option value="1" selected>Channel 1</option>
-          <option value="2">Channel 2</option>
-          <option value="3">Channel 3</option>
+          <option value="1" selected> 1</option>
+          <option value="2"> 2</option>
+          <option value="3"> 3</option>
+		   <option value="4"> 4</option>
+		    <option value="5"> 5</option>
+			  <option value="6"> 6</option>
         </select>
       </div>
       <div class="col-md-3 d-flex align-items-end">
@@ -115,7 +121,7 @@ td.boss-cell {
   <script>
     const serverOptions = ["Server 1", "Server 2", "Server 3", "Server 4", "Server 5","Server 6", "Server 7", "Server 8","Server 9", "Server 10"];
     const bossOptions = ["Glimpuff", "Catroll", "Frostfin", "Fungi", "Venomloop", "RoseCactus", "Ogultas"];
-    const channelOptions = ["Channel 1", "Channel 2", "Channel 3"];
+    const channelOptions = ["Stage 1", "Stage 2", "Stage 3","Stage 4", "Stage 5"];
 
     // Map boss -> image URL
     const bossImageMap = {
@@ -168,13 +174,35 @@ td.boss-cell {
   });
   return select;
 }
+function sortTableByCountdown() {
+    const table = document.getElementById("countdownTable");
+    const rows = Array.from(table.rows).slice(1); // bỏ hàng tiêu đề
+
+    rows.sort((a, b) => {
+        const timeA = a.cells[1].innerText.trim(); // lấy cột thứ 2: hh:mm:ss
+        const timeB = b.cells[1].innerText.trim();
+
+        const secondsA = toSeconds(timeA);
+        const secondsB = toSeconds(timeB);
+
+        return secondsA - secondsB; // tăng dần
+    });
+
+    // Gắn lại các hàng đã sort
+    rows.forEach(row => table.tBodies[0].appendChild(row));
+}
+
+function toSeconds(hms) {
+    const [h, m, s] = hms.split(':').map(Number);
+    return h * 3600 + m * 60 + s;
+}
 
 // Hàm saveBoss sau khi sửa để tạo hàng mới trong bảng
 function saveBoss() {
   const t = translations[currentLang];
   const serverValue = "Server " + $('#serverSelect').val();
   const bossValue = $('#bossSelect').val();
-  const channelValue = "Channel " + $('#channelSelect').val();
+  const channelValue = "Stage " + $('#channelSelect').val();
 
   const now = new Date();
   const appearTime = new Date(now.getTime() + 15 * 60000);
@@ -211,7 +239,24 @@ function saveBoss() {
   });
 
   const tdTime = document.createElement('td');
-  tdTime.appendChild(createTimeInput(appearTime));
+  const timeWrapper = document.createElement('div');
+  timeWrapper.className = "d-flex align-items-center gap-2";
+
+  // Tạo input time
+  const timeInput = createTimeInput(appearTime);
+
+  // Tạo nút Clear
+  const clearBtn = document.createElement('button');
+  clearBtn.innerText = "🗑️";
+  clearBtn.className = "btn btn-outline-secondary btn-sm";
+  clearBtn.onclick = () => {
+    timeInput.value = "";
+    timeInput.setAttribute('data-date', "");
+  };
+
+  timeWrapper.appendChild(timeInput);
+  timeWrapper.appendChild(clearBtn);
+  tdTime.appendChild(timeWrapper);
 
   const tdCountdown = document.createElement('td');
   tdCountdown.className = "countdown";
@@ -219,23 +264,30 @@ function saveBoss() {
 
   const tdAction = document.createElement('td');
   const btnSave = document.createElement('button');
-	btnSave.className = "btn btn-success btn-sm me-1";
-	btnSave.innerText = t.saveButton;
-	btnSave.onclick = () => {
-	  const timeInput = row.cells[3].querySelector("input");
-	  const oldDate = new Date(timeInput.getAttribute("data-date"));
-	  const newDate = new Date(oldDate.getTime() + 15 * 60000);
-	  timeInput.value = `${newDate.getHours().toString().padStart(2, '0')}:${newDate.getMinutes().toString().padStart(2, '0')}:${newDate.getSeconds().toString().padStart(2, '0')}`;
-	  timeInput.setAttribute('data-date', newDate.toISOString());
-	};
+  btnSave.className = "btn btn-success btn-sm me-1";
+  btnSave.innerText = t.saveButton;
+  btnSave.onclick = () => {
+    const timeInput = row.cells[3].querySelector("input");
+    const now = new Date();
+    const newDate = new Date(now.getTime() + 14 * 60000 + 55 * 1000); // 14 phút 55 giây
 
-const btnDelete = document.createElement('button');
-btnDelete.className = "btn btn-danger btn-sm";
-btnDelete.innerText = t.deleteButton;
-btnDelete.onclick = () => row.remove();
+    const h = newDate.getHours().toString().padStart(2, '0');
+    const m = newDate.getMinutes().toString().padStart(2, '0');
+    const s = newDate.getSeconds().toString().padStart(2, '0');
 
-tdAction.appendChild(btnSave);
-tdAction.appendChild(btnDelete);
+    timeInput.value = `${h}:${m}:${s}`;
+    timeInput.setAttribute('data-date', newDate.toISOString());
+    updateCountdowns();
+    sortTableByTime();  // Gọi hàm sắp xếp khi lưu
+  };
+
+  const btnDelete = document.createElement('button');
+  btnDelete.className = "btn btn-danger btn-sm";
+  btnDelete.innerText = t.deleteButton;
+  btnDelete.onclick = () => row.remove();
+
+  tdAction.appendChild(btnSave);
+  tdAction.appendChild(btnDelete);
 
   row.appendChild(tdServer);
   row.appendChild(tdBoss);
@@ -245,6 +297,30 @@ tdAction.appendChild(btnDelete);
   row.appendChild(tdAction);
 
   table.appendChild(row);
+
+  // Gọi lại hàm sắp xếp sau khi thêm hàng mới vào bảng
+  sortTableByTime();
+}
+
+function sortTableByTime() {
+  const table = document.getElementById("bossTableBody");
+  const rows = Array.from(table.rows);
+
+  rows.sort((a, b) => {
+    const timeA = a.cells[3].querySelector('input').value;  // Lấy giá trị từ ô thời gian
+    const timeB = b.cells[3].querySelector('input').value;
+
+    const [hA, mA, sA] = timeA.split(':').map(Number);
+    const [hB, mB, sB] = timeB.split(':').map(Number);
+
+    const totalSecondsA = hA * 3600 + mA * 60 + sA;
+    const totalSecondsB = hB * 3600 + mB * 60 + sB;
+
+    return totalSecondsA - totalSecondsB;  // Sắp xếp tăng dần theo thời gian
+  });
+
+  // Append lại các hàng đã sắp xếp
+  rows.forEach(row => table.appendChild(row));
 }
 
 const translations = {
@@ -358,19 +434,39 @@ function updateCountdowns() {
   rows.forEach(row => {
     const timeInput = row.cells[3].querySelector("input");
     const countdownCell = row.cells[4];
-    const appearTime = new Date(timeInput.getAttribute("data-date"));
+    const appearTimeStr = timeInput.getAttribute("data-date");
+
+    if (!appearTimeStr) {
+    countdownCell.innerText = "-";
+    countdownCell.style.color = '#000';
+    row.classList.remove("table-warning");
+    return;
+  }
+
+    const appearTime = new Date(appearTimeStr);
     const diff = appearTime - now;
+
     if (diff > 0) {
       const mins = Math.floor(diff / 60000);
       const secs = Math.floor((diff % 60000) / 1000);
       countdownCell.innerText = `${mins}m ${secs}s`;
       countdownCell.style.color = 'green';
+
+      // Highlight nếu dưới 1 phút
+      if (diff <= 60000) {
+        row.classList.add("table-warning");
+      } else {
+        row.classList.remove("table-warning");
+      }
+
     } else {
       countdownCell.innerText = translations[currentLang].appeared;
       countdownCell.style.color = 'red';
+      row.classList.remove("table-warning");
     }
   });
 }
+
 
 
     setInterval(updateCountdowns, 1000);
