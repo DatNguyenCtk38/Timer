@@ -1,547 +1,525 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8">
-    <title>Timing Boss Tracker</title>
-    <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-      .table-warning {
-        background-color: #fff3cd !important;
-      }
+<head>
+  <meta charset="UTF-8">
+  <title>Timing Boss Tracker</title>
+  <!-- Select2 CSS -->
+    <link rel="icon" href="/datdeptrai.ico" type="image/x-icon">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .table-warning {
+  background-color: #fff3cd !important;
+}
+  .select2-selection__arrow {
+  
+  top: 5px !important;
+  }
+    .countdown {
+      font-weight: bold;
+      color: green;
+    }
+    /* Ghi đè CSS của Select2 theo kiểu Bootstrap */
+    .select2-container--default .select2-selection--single {
+      height: calc(1.5em + 0.75rem + 2px) !important;
+      padding: 0.375rem 0.75rem !important;
+      font-size: 1rem !important;
+      line-height: 1.5 !important;
+      border: 1px solid #ced4da !important;
+      border-radius: 0.375rem !important;
+      background-color: #fff !important;
+    }
+    table td {
+  position: relative;
+}
+td.boss-cell {
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+}
+  </style>
+</head>
+<body class="p-4 bg-light">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+	  <h2 class="mb-0">Timing Boss Tracker</h2>
+	  
+	 <div class="d-flex align-items-center ms-3">
+  <span class="me-2">🌐</span>
+  <select id="languageSelect" class="form-select w-auto">
+    <option value="vi" data-flag="https://flagcdn.com/w40/vn.png" selected>Tiếng Việt</option>
+    <option value="en" data-flag="https://flagcdn.com/w40/us.png">English</option>
+  </select>
+</div>
 
-      .select2-selection__arrow {
-        top: 5px !important;
-      }
 
-      .countdown {
-        font-weight: bold;
-        color: green;
-      }
+	</div>
 
-      /* Ghi đè CSS của Select2 theo kiểu Bootstrap */
-      .select2-container--default .select2-selection--single {
-        height: calc(1.5em + 0.75rem + 2px) !important;
-        padding: 0.375rem 0.75rem !important;
-        font-size: 1rem !important;
-        line-height: 1.5 !important;
-        border: 1px solid #ced4da !important;
-        border-radius: 0.375rem !important;
-        background-color: #fff !important;
-      }
-
-      table td {
-        position: relative;
-      }
-
-      td.boss-cell {
-        width: 200px;
-        min-width: 200px;
-        max-width: 200px;
-      }
-    </style>
-  </head>
-  <body class="p-4 bg-light">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Timing Boss Tracker</h2>
-        <div class="d-flex align-items-center ms-3">
-          <span class="me-2">🌐</span>
-          <select id="languageSelect" class="form-select w-auto">
-            <option value="vi" data-flag="https://flagcdn.com/w40/vn.png" selected>Tiếng Việt</option>
-            <option value="en" data-flag="https://flagcdn.com/w40/us.png">English</option>
-          </select>
-        </div>
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label id="labelServerSelect" class="form-label">Chọn Server:</label>
+        <select class="form-select select2" id="serverSelect">
+          <option value="1" selected>Server 1</option>
+          <option value="2">Server 2</option>
+          <option value="3">Server 3</option>
+          <option value="4">Server 4</option>
+          <option value="5">Server 5</option>
+          <option value="6">Server 6</option>
+          <option value="7">Server 7</option>
+          <option value="8">Server 8</option>
+          <option value="9">Server 9</option>
+          <option value="10">Server 10</option>
+        </select>
       </div>
-      <div class="row mb-3">
-        <div class="col-md-3">
-          <label id="labelServerSelect" class="form-label">Chọn Server:</label>
-          <select class="form-select select2" id="serverSelect">
-            <option value="1" selected>Server 1</option>
-            <option value="2">Server 2</option>
-            <option value="3">Server 3</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label id="labelBossSelect" class="form-label">Chọn Boss:</label>
-          <select class="form-select select2" id="bossSelect" style="width: 100%;">
-            <option value="Glimpuff" data-image="https://assets.pixelheroes.tips/images/Monster/21350.webp">Glimpuff</option>
-            <option value="Catroll" data-image="https://assets.pixelheroes.tips/images/Monster/21351.webp">Catroll</option>
-            <option value="Frostfin" data-image="https://assets.pixelheroes.tips/images/Monster/21352.webp">Frostfin</option>
-            <option value="Fungi" data-image="https://assets.pixelheroes.tips/images/Monster/21353.webp">Fungi</option>
-            <option value="Venomloop" data-image="https://assets.pixelheroes.tips/images/Monster/21354.webp">Venomloop</option>
-            <option value="RoseCactus" data-image="https://assets.pixelheroes.tips/images/Monster/21355.webp">RoseCactus</option>
-            <option value="Ogultas" data-image="https://assets.pixelheroes.tips/images/Monster/21356.webp">Ogultas</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label id="labelChannelSelect" class="form-label">Stage:</label>
-          <select class="form-select select2" id="channelSelect">
-            <optgroup label="Stage 1">
-              <option value="stage1-channel1">Channel 1</option>
-              <option value="stage1-channel2">Channel 2</option>
-            </optgroup>
-            <optgroup label="Stage 2">
-              <option value="stage2-channel1">Channel 1</option>
-              <option value="stage2-channel2">Channel 2</option>
-            </optgroup>
-            <optgroup label="Stage 3">
-              <option value="stage3-channel1">Channel 1</option>
-              <option value="stage3-channel2">Channel 2</option>
-            </optgroup>
-            <optgroup label="Stage 4">
-              <option value="stage4-channel1">Channel 1</option>
-              <option value="stage4-channel2">Channel 2</option>
-            </optgroup>
-            <optgroup label="Stage 5">
-              <option value="stage5-channel1">Channel 1</option>
-              <option value="stage5-channel2">Channel 2</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="col-md-3 d-flex align-items-end">
-          <button class="btn btn-primary w-100" onclick="saveBoss()">Save</button>
-        </div>
+      <div class="col-md-3">
+        <label id="labelBossSelect" class="form-label">Chọn Boss:</label>
+        <select class="form-select select2" id="bossSelect" style="width: 100%;">
+          <option value="Glimpuff" data-image="https://assets.pixelheroes.tips/images/Monster/21350.webp">Glimpuff</option>
+          <option value="Catroll" data-image="https://assets.pixelheroes.tips/images/Monster/21351.webp">Catroll</option>
+          <option value="Frostfin" data-image="https://assets.pixelheroes.tips/images/Monster/21352.webp">Frostfin</option>
+          <option value="Fungi" data-image="https://assets.pixelheroes.tips/images/Monster/21353.webp">Fungi</option>
+          <option value="Venomloop" data-image="https://assets.pixelheroes.tips/images/Monster/21354.webp">Venomloop</option>
+          <option value="RoseCactus" data-image="https://assets.pixelheroes.tips/images/Monster/21355.webp">RoseCactus</option>
+          <option value="Ogultas" data-image="https://assets.pixelheroes.tips/images/Monster/21356.webp">Ogultas</option>
+        </select>
       </div>
-      <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-          <tr>
-            <th id="thServer">Server</th>
-            <th id="thBoss">Boss</th>
-            <th id="thChannel">Channel</th>
-            <th id="thTime">Time</th>
-            <th id="thCountdown">Countdown</th>
-            <th id="thAction">Action</th>
-          </tr>
-        </thead>
-        <tbody id="bossTableBody"></tbody>
-      </table>
+      <div class="col-md-3">
+        <label id="labelChannelSelect" class="form-label">Stage:</label>
+        <select class="form-select select2" id="channelSelect">
+          <option value="1" selected> 1</option>
+          <option value="2"> 2</option>
+          <option value="3"> 3</option>
+		   <option value="4"> 4</option>
+		    <option value="5"> 5</option>
+			  <option value="6"> 6</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary w-100" onclick="saveBoss()">Save</button>
+      </div>
     </div>
-    <!-- jQuery & Select2 JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-      const serverOptions = ["Server 1", "Server 2", "Server 3", "Server 4", "Server 5", "Server 6", "Server 7", "Server 8", "Server 9", "Server 10"];
-      const bossOptions = ["Glimpuff", "Catroll", "Frostfin", "Fungi", "Venomloop", "RoseCactus", "Ogultas"];
-      const channelOptions = ["Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5"];
-      const groupedData = {
-        "Stage 1": ["Channel 1", "Channel 2"],
-        "Stage 2": ["Channel 1", "Channel 2"],
-        "Stage 3": ["Channel 1", "Channel 2"],
-        "Stage 4": ["Channel 1", "Channel 2"],
-        "Stage 5": ["Channel 1", "Channel 2"]
-      };
-      // Map boss -> image URL
-      const bossImageMap = {
-        "Glimpuff": "https://assets.pixelheroes.tips/images/Monster/21350.webp",
-        "Catroll": "https://assets.pixelheroes.tips/images/Monster/21351.webp",
-        "Frostfin": "https://assets.pixelheroes.tips/images/Monster/21352.webp",
-        "Fungi": "https://assets.pixelheroes.tips/images/Monster/21353.webp",
-        "Venomloop": "https://assets.pixelheroes.tips/images/Monster/21354.webp",
-        "RoseCactus": "https://assets.pixelheroes.tips/images/Monster/21355.webp",
-        "Ogultas": "https://assets.pixelheroes.tips/images/Monster/21356.webp"
-      };
 
-      function createTimeInput(dateObj) {
-        const input = document.createElement('input');
-        input.type = "time";
-        input.step = 1; // để hiển thị giây
-        input.className = "form-control form-control-sm";
-        const hours = dateObj.getHours().toString().padStart(2, '0');
-        const minutes = dateObj.getMinutes().toString().padStart(2, '0');
-        const seconds = dateObj.getSeconds().toString().padStart(2, '0');
-        input.value = `${hours}:${minutes}:${seconds}`;
-        input.setAttribute('data-date', dateObj.toISOString());
-        input.addEventListener('input', () => {
-          const today = new Date();
-          const [h, m, s] = input.value.split(":");
-          today.setHours(h);
-          today.setMinutes(m);
-          today.setSeconds(s);
-          input.setAttribute('data-date', today.toISOString());
-        });
-        return input;
-      }
-      // Hàm khởi tạo dropdown, thêm flag isBoss nếu muốn thêm data-image và định dạng custom
-      function createDropdown(options, selectedValue, isBoss = false) {
-        const select = document.createElement('select');
-        select.className = "form-select form-select-sm select2";
-        options.forEach(opt => {
-          const option = document.createElement('option');
-          option.value = opt;
-          option.text = opt;
-          if (opt === selectedValue) {
-            option.setAttribute("selected", "selected");
-          }
-          if (isBoss && bossImageMap[opt]) {
-            option.setAttribute("data-image", bossImageMap[opt]);
-          }
-          select.appendChild(option);
-        });
-        return select;
-      }
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th id="thServer">Server</th>
+          <th id="thBoss">Boss</th>
+          <th id="thChannel">Channel</th>
+          <th id="thTime">Time</th>
+          <th id="thCountdown">Countdown</th>
+          <th id="thAction">Action</th>
+        </tr>
+      </thead>
+      <tbody id="bossTableBody">
+      </tbody>
+    </table>
+  </div>
 
-      function createGroupedDropdown(groupedOptions, selectedValue = "", id) {
-        const select = document.createElement('select');
-        select.className = "form-select select2";
-        select.id = id;
+  <!-- jQuery & Select2 JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+    const serverOptions = ["Server 1", "Server 2", "Server 3", "Server 4", "Server 5","Server 6", "Server 7", "Server 8","Server 9", "Server 10"];
+    const bossOptions = ["Glimpuff", "Catroll", "Frostfin", "Fungi", "Venomloop", "RoseCactus", "Ogultas"];
+    const channelOptions = ["Stage 1", "Stage 2", "Stage 3","Stage 4", "Stage 5"];
 
-        Object.entries(groupedOptions).forEach(([groupLabel, options]) => {
-          const optgroup = document.createElement('optgroup');
-          optgroup.label = groupLabel;
+    // Map boss -> image URL
+    const bossImageMap = {
+      "Glimpuff": "https://assets.pixelheroes.tips/images/Monster/21350.webp",
+      "Catroll": "https://assets.pixelheroes.tips/images/Monster/21351.webp",
+      "Frostfin": "https://assets.pixelheroes.tips/images/Monster/21352.webp",
+      "Fungi": "https://assets.pixelheroes.tips/images/Monster/21353.webp",
+      "Venomloop": "https://assets.pixelheroes.tips/images/Monster/21354.webp",
+      "RoseCactus": "https://assets.pixelheroes.tips/images/Monster/21355.webp",
+      "Ogultas": "https://assets.pixelheroes.tips/images/Monster/21356.webp"
+    };
 
-          options.forEach(channel => {
-            const value = `${groupLabel.toLowerCase().replace(/\s+/g, '')}-${channel.toLowerCase().replace(/\s+/g, '')}`;
-            const option = document.createElement('option');
-            option.value = value;
-            option.text = channel;
-
-            option.setAttribute('data-search', `${groupLabel} ${channel}`);
-
-            if (value === selectedValue) {
-              option.setAttribute('selected', 'selected');
-            }
-
-            
-            optgroup.appendChild(option);
-          });
-
-          select.appendChild(optgroup);
-        });
-        return select;
-      }
-
-
-      function sortTableByCountdown() {
-        const table = document.getElementById("countdownTable");
-        const rows = Array.from(table.rows).slice(1); // bỏ hàng tiêu đề
-        rows.sort((a, b) => {
-          const timeA = a.cells[1].innerText.trim(); // lấy cột thứ 2: hh:mm:ss
-          const timeB = b.cells[1].innerText.trim();
-          const secondsA = toSeconds(timeA);
-          const secondsB = toSeconds(timeB);
-          return secondsA - secondsB; // tăng dần
-        });
-        // Gắn lại các hàng đã sort
-        rows.forEach(row => table.tBodies[0].appendChild(row));
-      }
-
-      function toSeconds(hms) {
-        const [h, m, s] = hms.split(':').map(Number);
-        return h * 3600 + m * 60 + s;
-      }
-      // Hàm saveBoss sau khi sửa để tạo hàng mới trong bảng
-      function saveBoss() {
-        const t = translations[currentLang];
-        const serverValue = "Server " + $('#serverSelect').val();
-        const bossValue = $('#bossSelect').val();
-        const channelValue = $('#channelSelect').val();
-        const now = new Date();
-        const appearTime = new Date(now.getTime() + 15 * 60000);
-        const rowId = "row-" + Date.now();
-        const table = document.getElementById('bossTableBody');
-        const row = document.createElement('tr');
-        row.id = rowId;
-        const tdServer = document.createElement('td');
-        const serverSelect = createDropdown(serverOptions, serverValue);
-        tdServer.appendChild(serverSelect);
-        $(serverSelect).select2({
-          width: '100%',
-          dropdownParent: $(tdServer)
-        });
-        const tdBoss = document.createElement('td');
-        tdBoss.classList.add('boss-cell');
-        const bossSelect = createDropdown(bossOptions, bossValue, true);
-        tdBoss.appendChild(bossSelect);
-        $(bossSelect).select2({
-          width: '100%',
-          dropdownParent: $(tdBoss),
-          templateResult: formatBoss,
-          templateSelection: formatBoss
-        });
-        const tdChannel = document.createElement('td');
-        const uniqueString = generateUniqueId();
-        const channelSelect = createGroupedDropdown(groupedData, channelValue,uniqueString);
-        tdChannel.appendChild(channelSelect);
-        $(channelSelect).select2({
-          width: '100%',
-          dropdownParent: $(tdChannel)
-        }).on('change', function() {
-          const selectedOption = $(this).find('option:selected');
-          const optgroup = selectedOption.closest('optgroup').attr('label');
-          const text = selectedOption.text();
-          const result = `${optgroup} - ${text}`;
-          $(`#select2-${uniqueString}-container`).text(result);
-        });
-
-        setTimeout(() => {
-          $(`#${uniqueString}`).trigger('change');
-        }, 0);
-        const tdTime = document.createElement('td');
-        const timeWrapper = document.createElement('div');
-        timeWrapper.className = "d-flex align-items-center gap-2";
-        // Tạo input time
-        const timeInput = createTimeInput(appearTime);
-        // Tạo nút Clear
-        const clearBtn = document.createElement('button');
-        clearBtn.innerText = "🗑️";
-        clearBtn.className = "btn btn-outline-secondary btn-sm";
-        clearBtn.onclick = () => {
-          timeInput.value = "";
-          timeInput.setAttribute('data-date', "");
-        };
-        timeWrapper.appendChild(timeInput);
-        timeWrapper.appendChild(clearBtn);
-        tdTime.appendChild(timeWrapper);
-        const tdCountdown = document.createElement('td');
-        tdCountdown.className = "countdown";
-        tdCountdown.innerText = t.countdown;
-        const tdAction = document.createElement('td');
-        const btnSave = document.createElement('button');
-        btnSave.className = "btn btn-success btn-sm me-1";
-        btnSave.innerText = t.saveButton;
-        btnSave.onclick = () => {
-          const timeInput = row.cells[3].querySelector("input");
-          const now = new Date();
-          const newDate = new Date(now.getTime() + 14 * 60000 + 55 * 1000); // 14 phút 55 giây
-          const h = newDate.getHours().toString().padStart(2, '0');
-          const m = newDate.getMinutes().toString().padStart(2, '0');
-          const s = newDate.getSeconds().toString().padStart(2, '0');
-          timeInput.value = `${h}:${m}:${s}`;
-          timeInput.setAttribute('data-date', newDate.toISOString());
-          updateCountdowns();
-          sortTableByTime(); // Gọi hàm sắp xếp khi lưu
-        };
-        const btnDelete = document.createElement('button');
-        btnDelete.className = "btn btn-danger btn-sm";
-        btnDelete.innerText = t.deleteButton;
-        btnDelete.onclick = () => row.remove();
-        tdAction.appendChild(btnSave);
-        tdAction.appendChild(btnDelete);
-        row.appendChild(tdServer);
-        row.appendChild(tdBoss);
-        row.appendChild(tdChannel);
-        row.appendChild(tdTime);
-        row.appendChild(tdCountdown);
-        row.appendChild(tdAction);
-        table.appendChild(row);
-        // Gọi lại hàm sắp xếp sau khi thêm hàng mới vào bảng
-        sortTableByTime();
-      }
-
-      function generateUniqueId(prefix = "id") {
-        const randomPart = Math.random().toString(36).substr(2, 6); // 6 ký tự ngẫu nhiên
-        const timestampPart = Date.now().toString(36);              // timestamp để tăng tính duy nhất
-        return `${prefix}_${timestampPart}_${randomPart}`;
-      }
-
-      function sortTableByTime() {
-        const table = document.getElementById("bossTableBody");
-        const rows = Array.from(table.rows);
-        rows.sort((a, b) => {
-          const timeA = a.cells[3].querySelector('input').value; // Lấy giá trị từ ô thời gian
-          const timeB = b.cells[3].querySelector('input').value;
-          const [hA, mA, sA] = timeA.split(':').map(Number);
-          const [hB, mB, sB] = timeB.split(':').map(Number);
-          const totalSecondsA = hA * 3600 + mA * 60 + sA;
-          const totalSecondsB = hB * 3600 + mB * 60 + sB;
-          return totalSecondsA - totalSecondsB; // Sắp xếp tăng dần theo thời gian
-        });
-        // Append lại các hàng đã sắp xếp
-        rows.forEach(row => table.appendChild(row));
-      }
-      const translations = {
-        vi: {
-          labelServerSelect: "Chọn Server:",
-          labelBossSelect: "Chọn Boss:",
-          labelChannelSelect: "Chọn Kênh:",
-          deleteButton: "Xóa",
-          saveButton: "Lưu",
-          countdown: "Đang tính...",
-          appeared: "Đã xuất hiện!",
-          thServer: "Server",
-          thBoss: "Boss",
-          thChannel: "Kênh",
-          thTime: "Thời gian",
-          thCountdown: "Đếm ngược",
-          thAction: "Hành động"
-        },
-        en: {
-          labelServerSelect: "Select Server:",
-          labelBossSelect: "Select Boss:",
-          labelChannelSelect: "Channel:",
-          saveButton: "Save",
-          deleteButton: "Delete",
-          countdown: "Calculating...",
-          appeared: "Spawned!",
-          thServer: "Server",
-          thBoss: "Boss",
-          thChannel: "Channel",
-          thTime: "Time",
-          thCountdown: "Countdown",
-          thAction: "Action"
-        }
-      };
-      let currentLang = 'vi';
-
-      function updateLanguage(lang) {
-        const t = translations[lang];
-        currentLang = lang;
-        const setText = (id, key) => {
-          const el = document.getElementById(id);
-          if (el) el.innerText = t[key];
-        };
-        setText("labelServerSelect", "labelServerSelect");
-        setText("labelBossSelect", "labelBossSelect");
-        setText("labelChannelSelect", "labelChannelSelect");
-        setText("thServer", "thServer");
-        setText("thBoss", "thBoss");
-        setText("thChannel", "thChannel");
-        setText("thTime", "thTime");
-        setText("thCountdown", "thCountdown");
-        setText("thAction", "thAction");
-        // Cập nhật nút Save chính (phía trên)
-        const saveBtn = document.querySelector('button[onclick="saveBoss()"]');
-        if (saveBtn) saveBtn.innerText = t.saveButton;
-        // Cập nhật các nút trong bảng
-        const rows = document.querySelectorAll('#bossTableBody tr');
-        rows.forEach(row => {
-          const countdownCell = row.cells[4];
-          if (countdownCell.innerText.includes("Đang") || countdownCell.innerText.includes("Calculating")) {
-            countdownCell.innerText = t.countdown;
-          } else if (countdownCell.innerText.includes("xuất hiện") || countdownCell.innerText.includes("Spawned")) {
-            countdownCell.innerText = t.appeared;
-          }
-          const btns = row.cells[5]?.querySelectorAll("button");
-          if (btns && btns.length === 2) {
-            btns[0].innerText = t.saveButton; // nút Save
-            btns[1].innerText = t.deleteButton; // nút Delete
-          }
-        });
-      }
-      document.addEventListener("DOMContentLoaded", () => {
-        const langSelect = document.getElementById("languageSelect");
-        langSelect.addEventListener("change", () => {
-          updateLanguage(langSelect.value);
-        });
-        // Khởi tạo ngôn ngữ mặc định
-        updateLanguage("vi");
-      });
-      $('#languageSelect').select2({
-        templateResult: formatFlag,
-        templateSelection: formatFlag,
-        minimumResultsForSearch: Infinity,
-        width: '100%'
-      });
-
-      function formatFlag(option) {
-        if (!option.id) return option.text;
-        const flagUrl = $(option.element).data('flag');
-        const text = option.text;
-        if (!flagUrl) return text;
-        return $(`
     
-					<span style="display: flex; align-items: center;">
-						<img src="${flagUrl}" style="width: 20px; height: 15px; object-fit: contain; margin-right: 8px;">
-							<span>${text}</span>
-						</span>
+    function createTimeInput(dateObj) {
+      const input = document.createElement('input');
+      input.type = "time";
+      input.step = 1; // để hiển thị giây
+      input.className = "form-control form-control-sm";
+      const hours = dateObj.getHours().toString().padStart(2, '0');
+      const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+      const seconds = dateObj.getSeconds().toString().padStart(2, '0');
+      input.value = `${hours}:${minutes}:${seconds}`;
+      input.setAttribute('data-date', dateObj.toISOString());
+      input.addEventListener('input', () => {
+        const today = new Date();
+        const [h, m, s] = input.value.split(":");
+        today.setHours(h);
+        today.setMinutes(m);
+        today.setSeconds(s);
+        input.setAttribute('data-date', today.toISOString());
+      });
+      return input;
+    }
+
+    // Hàm khởi tạo dropdown, thêm flag isBoss nếu muốn thêm data-image và định dạng custom
+    function createDropdown(options, selectedValue, isBoss = false) {
+  const select = document.createElement('select');
+  select.className = "form-select form-select-sm select2";
+  options.forEach(opt => {
+    const option = document.createElement('option');
+    option.value = opt;
+    option.text = opt;
+    if (opt === selectedValue) {
+      option.setAttribute("selected", "selected");
+    }
+    if (isBoss && bossImageMap[opt]) {
+      option.setAttribute("data-image", bossImageMap[opt]);
+    }
+    select.appendChild(option);
+  });
+  return select;
+}
+function sortTableByCountdown() {
+    const table = document.getElementById("countdownTable");
+    const rows = Array.from(table.rows).slice(1); // bỏ hàng tiêu đề
+
+    rows.sort((a, b) => {
+        const timeA = a.cells[1].innerText.trim(); // lấy cột thứ 2: hh:mm:ss
+        const timeB = b.cells[1].innerText.trim();
+
+        const secondsA = toSeconds(timeA);
+        const secondsB = toSeconds(timeB);
+
+        return secondsA - secondsB; // tăng dần
+    });
+
+    // Gắn lại các hàng đã sort
+    rows.forEach(row => table.tBodies[0].appendChild(row));
+}
+
+function toSeconds(hms) {
+    const [h, m, s] = hms.split(':').map(Number);
+    return h * 3600 + m * 60 + s;
+}
+
+// Hàm saveBoss sau khi sửa để tạo hàng mới trong bảng
+function saveBoss() {
+  const t = translations[currentLang];
+  const serverValue = "Server " + $('#serverSelect').val();
+  const bossValue = $('#bossSelect').val();
+  const channelValue = "Stage " + $('#channelSelect').val();
+
+  const now = new Date();
+  const appearTime = new Date(now.getTime() + 15 * 60000);
+  const rowId = "row-" + Date.now();
+  const table = document.getElementById('bossTableBody');
+  const row = document.createElement('tr');
+  row.id = rowId;
+
+  const tdServer = document.createElement('td');
+  const serverSelect = createDropdown(serverOptions, serverValue);
+  tdServer.appendChild(serverSelect);
+  $(serverSelect).select2({
+    width: '100%',
+    dropdownParent: $(tdServer)
+  });
+
+  const tdBoss = document.createElement('td');
+  tdBoss.classList.add('boss-cell');
+  const bossSelect = createDropdown(bossOptions, bossValue, true);
+  tdBoss.appendChild(bossSelect);
+  $(bossSelect).select2({
+    width: '100%',
+    dropdownParent: $(tdBoss),
+    templateResult: formatBoss,
+    templateSelection: formatBoss
+  });
+
+  const tdChannel = document.createElement('td');
+  const channelSelect = createDropdown(channelOptions, channelValue);
+  tdChannel.appendChild(channelSelect);
+  $(channelSelect).select2({
+    width: '100%',
+    dropdownParent: $(tdChannel)
+  });
+
+  const tdTime = document.createElement('td');
+  const timeWrapper = document.createElement('div');
+  timeWrapper.className = "d-flex align-items-center gap-2";
+
+  // Tạo input time
+  const timeInput = createTimeInput(appearTime);
+
+  // Tạo nút Clear
+  const clearBtn = document.createElement('button');
+  clearBtn.innerText = "🗑️";
+  clearBtn.className = "btn btn-outline-secondary btn-sm";
+  clearBtn.onclick = () => {
+    timeInput.value = "";
+    timeInput.setAttribute('data-date', "");
+  };
+
+  timeWrapper.appendChild(timeInput);
+  timeWrapper.appendChild(clearBtn);
+  tdTime.appendChild(timeWrapper);
+
+  const tdCountdown = document.createElement('td');
+  tdCountdown.className = "countdown";
+  tdCountdown.innerText = t.countdown;
+
+  const tdAction = document.createElement('td');
+  const btnSave = document.createElement('button');
+  btnSave.className = "btn btn-success btn-sm me-1";
+  btnSave.innerText = t.saveButton;
+  btnSave.onclick = () => {
+    const timeInput = row.cells[3].querySelector("input");
+    const now = new Date();
+    const newDate = new Date(now.getTime() + 14 * 60000 + 55 * 1000); // 14 phút 55 giây
+
+    const h = newDate.getHours().toString().padStart(2, '0');
+    const m = newDate.getMinutes().toString().padStart(2, '0');
+    const s = newDate.getSeconds().toString().padStart(2, '0');
+
+    timeInput.value = `${h}:${m}:${s}`;
+    timeInput.setAttribute('data-date', newDate.toISOString());
+    updateCountdowns();
+    sortTableByTime();  // Gọi hàm sắp xếp khi lưu
+  };
+
+  const btnDelete = document.createElement('button');
+  btnDelete.className = "btn btn-danger btn-sm";
+  btnDelete.innerText = t.deleteButton;
+  btnDelete.onclick = () => row.remove();
+
+  tdAction.appendChild(btnSave);
+  tdAction.appendChild(btnDelete);
+
+  row.appendChild(tdServer);
+  row.appendChild(tdBoss);
+  row.appendChild(tdChannel);
+  row.appendChild(tdTime);
+  row.appendChild(tdCountdown);
+  row.appendChild(tdAction);
+
+  table.appendChild(row);
+
+  // Gọi lại hàm sắp xếp sau khi thêm hàng mới vào bảng
+  sortTableByTime();
+}
+
+function sortTableByTime() {
+  const table = document.getElementById("bossTableBody");
+  const rows = Array.from(table.rows);
+
+  rows.sort((a, b) => {
+    const timeA = a.cells[3].querySelector('input').value;  // Lấy giá trị từ ô thời gian
+    const timeB = b.cells[3].querySelector('input').value;
+
+    const [hA, mA, sA] = timeA.split(':').map(Number);
+    const [hB, mB, sB] = timeB.split(':').map(Number);
+
+    const totalSecondsA = hA * 3600 + mA * 60 + sA;
+    const totalSecondsB = hB * 3600 + mB * 60 + sB;
+
+    return totalSecondsA - totalSecondsB;  // Sắp xếp tăng dần theo thời gian
+  });
+
+  // Append lại các hàng đã sắp xếp
+  rows.forEach(row => table.appendChild(row));
+}
+
+const translations = {
+  vi: {
+    labelServerSelect: "Chọn Server:",
+    labelBossSelect: "Chọn Boss:",
+    labelChannelSelect: "Chọn Kênh:",
+    deleteButton: "Xóa",
+	saveButton: "Lưu",
+    countdown: "Đang tính...",
+    appeared: "Đã xuất hiện!",
+    thServer: "Server",
+    thBoss: "Boss",
+    thChannel: "Kênh",
+    thTime: "Thời gian",
+    thCountdown: "Đếm ngược",
+    thAction: "Hành động"
+  },
+  en: {
+    labelServerSelect: "Select Server:",
+    labelBossSelect: "Select Boss:",
+    labelChannelSelect: "Channel:",
+    saveButton: "Save",
+    deleteButton: "Delete",
+    countdown: "Calculating...",
+    appeared: "Spawned!",
+    thServer: "Server",
+    thBoss: "Boss",
+    thChannel: "Channel",
+    thTime: "Time",
+    thCountdown: "Countdown",
+    thAction: "Action"
+  }
+};
+
+let currentLang = 'vi';
+
+function updateLanguage(lang) {
+  const t = translations[lang];
+  currentLang = lang;
+
+  const setText = (id, key) => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = t[key];
+  };
+
+  setText("labelServerSelect", "labelServerSelect");
+  setText("labelBossSelect", "labelBossSelect");
+  setText("labelChannelSelect", "labelChannelSelect");
+  setText("thServer", "thServer");
+  setText("thBoss", "thBoss");
+  setText("thChannel", "thChannel");
+  setText("thTime", "thTime");
+  setText("thCountdown", "thCountdown");
+  setText("thAction", "thAction");
+
+  // Cập nhật nút Save chính (phía trên)
+  const saveBtn = document.querySelector('button[onclick="saveBoss()"]');
+  if (saveBtn) saveBtn.innerText = t.saveButton;
+
+  // Cập nhật các nút trong bảng
+  const rows = document.querySelectorAll('#bossTableBody tr');
+  rows.forEach(row => {
+    const countdownCell = row.cells[4];
+    if (countdownCell.innerText.includes("Đang") || countdownCell.innerText.includes("Calculating")) {
+      countdownCell.innerText = t.countdown;
+    } else if (countdownCell.innerText.includes("xuất hiện") || countdownCell.innerText.includes("Spawned")) {
+      countdownCell.innerText = t.appeared;
+    }
+
+    const btns = row.cells[5]?.querySelectorAll("button");
+    if (btns && btns.length === 2) {
+      btns[0].innerText = t.saveButton;   // nút Save
+      btns[1].innerText = t.deleteButton; // nút Delete
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const langSelect = document.getElementById("languageSelect");
+  langSelect.addEventListener("change", () => {
+    updateLanguage(langSelect.value);
+  });
+
+  // Khởi tạo ngôn ngữ mặc định
+  updateLanguage("vi");
+});
+$('#languageSelect').select2({
+  templateResult: formatFlag,
+  templateSelection: formatFlag,
+  minimumResultsForSearch: Infinity,
+  width: '100%'
+});
+function formatFlag(option) {
+  if (!option.id) return option.text;
+  const flagUrl = $(option.element).data('flag');
+  const text = option.text;
+  if (!flagUrl) return text;
+
+  return $(`
+    <span style="display: flex; align-items: center;">
+      <img src="${flagUrl}" style="width: 20px; height: 15px; object-fit: contain; margin-right: 8px;">
+      <span>${text}</span>
+    </span>
   `);
+}
+
+function updateCountdowns() {
+  const rows = document.querySelectorAll('#bossTableBody tr');
+  const now = new Date();
+  rows.forEach(row => {
+    const timeInput = row.cells[3].querySelector("input");
+    const countdownCell = row.cells[4];
+    const appearTimeStr = timeInput.getAttribute("data-date");
+
+    if (!appearTimeStr) {
+    countdownCell.innerText = "-";
+    countdownCell.style.color = '#000';
+    row.classList.remove("table-warning");
+    return;
+  }
+
+    const appearTime = new Date(appearTimeStr);
+    const diff = appearTime - now;
+
+    if (diff > 0) {
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      countdownCell.innerText = `${mins}m ${secs}s`;
+      countdownCell.style.color = 'green';
+
+      // Highlight nếu dưới 1 phút
+      if (diff <= 60000) {
+        row.classList.add("table-warning");
+      } else {
+        row.classList.remove("table-warning");
       }
 
-      function updateCountdowns() {
-        const rows = document.querySelectorAll('#bossTableBody tr');
-        const now = new Date();
-        rows.forEach(row => {
-          const timeInput = row.cells[3].querySelector("input");
-          const countdownCell = row.cells[4];
-          const appearTimeStr = timeInput.getAttribute("data-date");
-          if (!appearTimeStr) {
-            countdownCell.innerText = "-";
-            countdownCell.style.color = '#000';
-            row.classList.remove("table-warning");
-            return;
-          }
-          const appearTime = new Date(appearTimeStr);
-          const diff = appearTime - now;
-          if (diff > 0) {
-            const mins = Math.floor(diff / 60000);
-            const secs = Math.floor((diff % 60000) / 1000);
-            countdownCell.innerText = `${mins}m ${secs}s`;
-            countdownCell.style.color = 'green';
-            // Highlight nếu dưới 1 phút
-            if (diff <= 60000) {
-              row.classList.add("table-warning");
-            } else {
-              row.classList.remove("table-warning");
-            }
-          } else {
-            countdownCell.innerText = translations[currentLang].appeared;
-            countdownCell.style.color = 'red';
-            row.classList.remove("table-warning");
-          }
-        });
-      }
-      setInterval(updateCountdowns, 1000);
-      // Hàm định dạng hiển thị cho dropdown boss khi dùng Select2
-      function formatBoss(option) {
-        if (!option.id) return option.text;
-        const imageUrl = $(option.element).data('image');
-        if (!imageUrl) return option.text;
-        const $option = $(`
-        
-						<span style="display: flex; align-items: center;">
+    } else {
+      countdownCell.innerText = translations[currentLang].appeared;
+      countdownCell.style.color = 'red';
+      row.classList.remove("table-warning");
+    }
+  });
+}
+
+
+
+    setInterval(updateCountdowns, 1000);
+
+    // Hàm định dạng hiển thị cho dropdown boss khi dùng Select2
+    function formatBoss(option) {
+      if (!option.id) return option.text;
+      const imageUrl = $(option.element).data('image');
+      if (!imageUrl) return option.text;
+      const $option = $(`
+        <span style="display: flex; align-items: center;">
           ${option.text}
-          
-							<img src="${imageUrl}" style="height: 30px; width: 30px; object-fit: contain; margin-left: 10px;">
-							</span>
+          <img src="${imageUrl}" style="height: 30px; width: 30px; object-fit: contain; margin-left: 10px;">
+        </span>
       `);
-        return $option;
+      return $option;
+    }
+
+    $(document).ready(function () {
+  // Khởi tạo Select2 cho dropdown tĩnh
+  $('#serverSelect, #channelSelect').select2({ width: '100%' });
+
+  $('#bossSelect').select2({
+    templateResult: formatBoss,
+    templateSelection: formatBoss,
+    width: '100%'
+  });
+
+  $('#languageSelect').select2({
+    templateResult: formatFlag,
+    templateSelection: formatFlag,
+    minimumResultsForSearch: Infinity,
+    width: '100%'
+  }).on('change', function () {
+    const selectedLang = $(this).val();
+    updateLanguage(selectedLang);
+    currentLang = selectedLang;
+  });
+
+  $(document).on('select2:open', function(e) {
+    setTimeout(function() {
+      const searchField = document.querySelector('.select2-search__field');
+      if (searchField) {
+        searchField.focus();
       }
-      $(document).ready(function() {
-        // Khởi tạo Select2 cho dropdown tĩnh
-        $('#serverSelect, #channelSelect').select2({
-          width: '100%'
-        });
-        $('#channelSelect').select2({
-          width: '100%'
-        }).on('change', function() {
-          const selectedOption = $(this).find('option:selected');
-          const optgroup = selectedOption.closest('optgroup').attr('label');
-          const text = selectedOption.text();
-          const result = `${optgroup} - ${text}`;
-          $('#select2-channelSelect-container').text(result);
-        });
-        setTimeout(() => {
-          $(`#channelSelect`).trigger('change');
-        }, 0);
-        $('#bossSelect').select2({
-          templateResult: formatBoss,
-          templateSelection: formatBoss,
-          width: '100%'
-        });
-        $('#languageSelect').select2({
-          templateResult: formatFlag,
-          templateSelection: formatFlag,
-          minimumResultsForSearch: Infinity,
-          width: '100%'
-        }).on('change', function() {
-          const selectedLang = $(this).val();
-          updateLanguage(selectedLang);
-          currentLang = selectedLang;
-        });
-        $(document).on('select2:open', function(e) {
-          setTimeout(function() {
-            const searchField = document.querySelector('.select2-search__field');
-            if (searchField) {
-              searchField.focus();
-            }
-          }, 100);
-        });
-        // Set ngôn ngữ mặc định
-        updateLanguage("vi");
-        currentLang = "vi";
-      });
-    </script>
-  </body>
+    }, 100);
+  });
+
+  // Set ngôn ngữ mặc định
+  updateLanguage("vi");
+  currentLang = "vi";
+});
+
+  </script>
+</body>
 </html>
