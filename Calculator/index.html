@@ -1,40 +1,132 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Rarity Point Calculator</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f6fa;
+      background: #0f1115;
+      color: #eaeaea;
       padding: 20px;
     }
+
+    h2 {
+      margin-bottom: 12px;
+    }
+
     table {
       border-collapse: collapse;
       width: 100%;
       max-width: 900px;
-      background: #fff;
+      background: #161a22;
     }
+
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid #2a2f3a;
       padding: 8px;
       text-align: center;
     }
+
     th {
-      background: #eee;
+      background: #1f2430;
+      color: #cfd3dc;
     }
+
     input {
       width: 60px;
       padding: 4px;
       text-align: center;
+      background: #0f1115;
+      color: #fff;
+      border: 1px solid #2a2f3a;
+      border-radius: 4px;
+      transition: all 0.15s ease;
     }
+
+    /* Focus highlight */
+    input:focus {
+      outline: none;
+      border-color: #5dade2;
+      box-shadow: 0 0 0 2px rgba(93, 173, 226, 0.25);
+      background: #12151c;
+    }
+
+    /* Filled highlight */
+    input.filled {
+      border-color: #6c7ae0;
+      background: #151a28;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
     .total {
       margin-top: 20px;
       font-size: 20px;
       font-weight: bold;
     }
+
+    /* ===== Rarity badge ===== */
+    .rarity {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: bold;
+    }
+
+    .dot {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    /* ===== Rarity colors ===== */
+    .COMMON { color: #b0b0b0; }
+    .COMMON .badge { background: #2a2a2a; }
+
+    .RARE { color: #2ecc71; }
+    .RARE .badge { background: rgba(46, 204, 113, 0.15); }
+
+    .EPIC { color: #9b59b6; }
+    .EPIC .badge { background: rgba(155, 89, 182, 0.15); }
+
+    .LEGEND { color: #f1c40f; }
+    .LEGEND .badge { background: rgba(241, 196, 15, 0.15); }
+
+    .MYTHIC { color: #e74c3c; }
+    .MYTHIC .badge { background: rgba(231, 76, 60, 0.18); }
+
+    /* ===== Background by rarity ===== */
+    tr.bg-COMMON {
+      background: linear-gradient(90deg, #141821, #161a22);
+    }
+
+    tr.bg-RARE {
+      background: linear-gradient(90deg, rgba(46,204,113,0.08), #161a22);
+    }
+
+    tr.bg-EPIC {
+      background: linear-gradient(90deg, rgba(155,89,182,0.10), #161a22);
+    }
+
+    tr.bg-LEGEND {
+      background: linear-gradient(90deg, rgba(241,196,15,0.12), #161a22);
+    }
+
+    tr.bg-MYTHIC {
+      background: linear-gradient(90deg, rgba(231,76,60,0.14), #161a22);
+    }
   </style>
 </head>
+
 <body>
 
 <h2>🎯 Rarity Point Calculator</h2>
@@ -53,11 +145,10 @@
 </table>
 
 <div class="total">
-  Tổng điểm: <span id="totalPoint">0</span>
+  Total Points: <span id="totalPoint">0</span>
 </div>
 
 <script>
-  // Bảng điểm
   const pointTable = {
     COMMON:  [10, 15, 30, 90],
     RARE:    [30, 45, 90, 270],
@@ -68,31 +159,48 @@
 
   const tableBody = document.getElementById("table-body");
 
-  // Render table input
   Object.entries(pointTable).forEach(([rarity, points]) => {
     const row = document.createElement("tr");
+    row.classList.add(`bg-${rarity}`);
+
     row.innerHTML = `
-      <td><b>${rarity}</b></td>
-      ${points.map((_, i) => `
+      <td>
+        <div class="rarity ${rarity}">
+          <span class="dot">●</span>
+          <span class="badge">${rarity}</span>
+        </div>
+      </td>
+      ${points.map((_, starIndex) => `
         <td>
-          <input type="number" min="0" value="0"
+          <input
+            type="number"
+            min="0"
+            placeholder="-"
             data-rarity="${rarity}"
-            data-star="${i}"
-            oninput="calculate()">
+            data-star="${starIndex}"
+            oninput="calculate(this)"
+          >
         </td>
       `).join("")}
     `;
+
     tableBody.appendChild(row);
   });
 
-  function calculate() {
+  function calculate(el) {
     let total = 0;
+
     document.querySelectorAll("input").forEach(input => {
       const qty = Number(input.value) || 0;
       const rarity = input.dataset.rarity;
       const starIndex = input.dataset.star;
+
+      // Toggle filled highlight
+      input.classList.toggle("filled", qty > 0);
+
       total += qty * pointTable[rarity][starIndex];
     });
+
     document.getElementById("totalPoint").innerText = total;
   }
 </script>
