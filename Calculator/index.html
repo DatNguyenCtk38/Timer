@@ -45,7 +45,6 @@
       transition: all 0.15s ease;
     }
 
-    /* Focus highlight */
     input:focus {
       outline: none;
       border-color: #5dade2;
@@ -53,7 +52,6 @@
       background: #12151c;
     }
 
-    /* Filled highlight */
     input.filled {
       border-color: #6c7ae0;
       background: #151a28;
@@ -69,6 +67,20 @@
       font-weight: bold;
     }
 
+    button {
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: #2a2f3a;
+      color: #fff;
+      border: 1px solid #3a4150;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #343b4a;
+    }
+
     /* ===== Rarity badge ===== */
     .rarity {
       display: inline-flex;
@@ -79,7 +91,6 @@
 
     .dot {
       font-size: 16px;
-      line-height: 1;
     }
 
     .badge {
@@ -88,7 +99,6 @@
       font-size: 13px;
     }
 
-    /* ===== Rarity colors ===== */
     .COMMON { color: #b0b0b0; }
     .COMMON .badge { background: #2a2a2a; }
 
@@ -104,26 +114,11 @@
     .MYTHIC { color: #e74c3c; }
     .MYTHIC .badge { background: rgba(231, 76, 60, 0.18); }
 
-    /* ===== Background by rarity ===== */
-    tr.bg-COMMON {
-      background: linear-gradient(90deg, #141821, #161a22);
-    }
-
-    tr.bg-RARE {
-      background: linear-gradient(90deg, rgba(46,204,113,0.08), #161a22);
-    }
-
-    tr.bg-EPIC {
-      background: linear-gradient(90deg, rgba(155,89,182,0.10), #161a22);
-    }
-
-    tr.bg-LEGEND {
-      background: linear-gradient(90deg, rgba(241,196,15,0.12), #161a22);
-    }
-
-    tr.bg-MYTHIC {
-      background: linear-gradient(90deg, rgba(231,76,60,0.14), #161a22);
-    }
+    tr.bg-COMMON { background: linear-gradient(90deg, #141821, #161a22); }
+    tr.bg-RARE { background: linear-gradient(90deg, rgba(46,204,113,0.08), #161a22); }
+    tr.bg-EPIC { background: linear-gradient(90deg, rgba(155,89,182,0.10), #161a22); }
+    tr.bg-LEGEND { background: linear-gradient(90deg, rgba(241,196,15,0.12), #161a22); }
+    tr.bg-MYTHIC { background: linear-gradient(90deg, rgba(231,76,60,0.14), #161a22); }
   </style>
 </head>
 
@@ -148,6 +143,8 @@
   Total Points: <span id="totalPoint">0</span>
 </div>
 
+<button onclick="copyResult()">📋 Copy Result</button>
+
 <script>
   const pointTable = {
     COMMON:  [10, 15, 30, 90],
@@ -156,6 +153,8 @@
     LEGEND:  [100, 150, 300, 900],
     MYTHIC:  [300, 450, 900, 2700]
   };
+
+  const starLabels = ["0*", "1*", "3*", "5*"];
 
   const tableBody = document.getElementById("table-body");
 
@@ -178,7 +177,7 @@
             placeholder="-"
             data-rarity="${rarity}"
             data-star="${starIndex}"
-            oninput="calculate(this)"
+            oninput="calculate()"
           >
         </td>
       `).join("")}
@@ -187,21 +186,44 @@
     tableBody.appendChild(row);
   });
 
-  function calculate(el) {
+  function calculate() {
     let total = 0;
 
     document.querySelectorAll("input").forEach(input => {
       const qty = Number(input.value) || 0;
-      const rarity = input.dataset.rarity;
-      const starIndex = input.dataset.star;
-
-      // Toggle filled highlight
       input.classList.toggle("filled", qty > 0);
 
+      const rarity = input.dataset.rarity;
+      const starIndex = input.dataset.star;
       total += qty * pointTable[rarity][starIndex];
     });
 
     document.getElementById("totalPoint").innerText = total;
+  }
+
+  function copyResult() {
+    let lines = [];
+    let total = 0;
+
+    document.querySelectorAll("input").forEach(input => {
+      const qty = Number(input.value) || 0;
+      if (qty <= 0) return;
+
+      const rarity = input.dataset.rarity;
+      const starIndex = input.dataset.star;
+      const starText = starLabels[starIndex];
+
+      lines.push(
+        `${rarity.charAt(0)}${rarity.slice(1).toLowerCase()} Material ${starText} : ${qty}`
+      );
+
+      total += qty * pointTable[rarity][starIndex];
+    });
+
+    lines.push(`Total point : ${total}`);
+
+    navigator.clipboard.writeText(lines.join("\n"));
+    alert("Copied to clipboard!");
   }
 </script>
 
