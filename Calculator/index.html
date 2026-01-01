@@ -41,12 +41,14 @@ input {
   color: #fff;
   border: 1px solid #2a2f3a;
   border-radius: 4px;
+  transition: all .15s ease;
 }
 
 input:focus {
   outline: none;
   border-color: #5dade2;
   box-shadow: 0 0 0 2px rgba(93,173,226,.25);
+  background: #12151c;
 }
 
 input.filled {
@@ -60,25 +62,24 @@ input.filled {
   font-weight: bold;
 }
 
-/* ===== Rarity ===== */
-.rarity { font-weight: bold; }
+/* ===== Rarity colors ===== */
 .COMMON { color: #b0b0b0; }
 .RARE { color: #2ecc71; }
 .EPIC { color: #9b59b6; }
 .LEGEND { color: #f1c40f; }
 .MYTHIC { color: #e74c3c; }
 
-/* ===== Background ===== */
+/* ===== Background rows ===== */
 tr.bg-COMMON { background: #161a22; }
 tr.bg-RARE { background: rgba(46,204,113,.08); }
 tr.bg-EPIC { background: rgba(155,89,182,.10); }
 tr.bg-LEGEND { background: rgba(241,196,15,.12); }
 tr.bg-MYTHIC { background: rgba(231,76,60,.14); }
 
-/* ===== Copy button ===== */
+/* ===== Button ===== */
 button {
   margin-top: 12px;
-  padding: 8px 14px;
+  padding: 8px 16px;
   background: #2d6cdf;
   border: none;
   border-radius: 6px;
@@ -90,7 +91,7 @@ button:hover {
   background: #3d7eff;
 }
 
-/* ===== Toast ===== */
+/* ===== Toast (center) ===== */
 .toast {
   position: fixed;
   top: 50%;
@@ -102,12 +103,13 @@ button:hover {
   border-radius: 8px;
   font-size: 14px;
   opacity: 0;
-  transition: all 0.25s ease;
+  transition: all .25s ease;
   z-index: 9999;
 }
+
 .toast.show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, -50%) scale(1);
 }
 </style>
 </head>
@@ -139,57 +141,95 @@ Total Points: <span id="totalPoint">0</span>
 
 <script>
 const pointTable = {
-  COMMON:  [10,15,30,90],
-  RARE:    [30,45,90,270],
-  EPIC:    [50,75,150,450],
-  LEGEND:  [100,150,300,900],
-  MYTHIC:  [300,450,900,2700]
+  COMMON:  [10, 15, 30, 90],
+  RARE:    [30, 45, 90, 270],
+  EPIC:    [50, 75, 150, 450],
+  LEGEND:  [100, 150, 300, 900],
+  MYTHIC:  [300, 450, 900, 2700]
 };
 
 const starLabels = ["0*", "1-2*", "3-4*", "5*"];
 const tableBody = document.getElementById("table-body");
 
+/* ===== Build table ===== */
 Object.keys(pointTable).forEach(rarity => {
   const row = document.createElement("tr");
   row.className = `bg-${rarity}`;
   row.innerHTML = `
-    <td class="rarity ${rarity}">${rarity}</td>
+    <td class="${rarity}"><b>${rarity}</b></td>
     ${pointTable[rarity].map((_, i) => `
-      <td><input type="number" min="0" placeholder="-" data-rarity="${rarity}" data-star="${i}" oninput="calculate(this)"></td>
+      <td>
+        <input type="number" min="0" placeholder="-"
+          data-rarity="${rarity}"
+          data-star="${i}"
+          oninput="calculate(this)">
+      </td>
     `).join("")}
   `;
   tableBody.appendChild(row);
 });
 
+/* ===== Calculate points ===== */
 function calculate() {
   let total = 0;
-  document.querySelectorAll("input").forEach(i => {
-    const qty = Number(i.value) || 0;
-    i.classList.toggle("filled", qty > 0);
-    total += qty * pointTable[i.dataset.rarity][i.dataset.star];
+
+  document.querySelectorAll("input").forEach(input => {
+    const qty = Number(input.value) || 0;
+    input.classList.toggle("filled", qty > 0);
+    total += qty * pointTable[input.dataset.rarity][input.dataset.star];
   });
+
   document.getElementById("totalPoint").innerText = total;
 }
 
+/* ===== Copy result ===== */
 function copyResult() {
   let lines = [];
-  document.querySelectorAll("input").forEach(i => {
-    const qty = Number(i.value) || 0;
+  let rarityCount = {
+    MYTHIC: 0,
+    LEGEND: 0,
+    EPIC: 0,
+    RARE: 0,
+    COMMON: 0
+  };
+
+  let totalItems = 0;
+
+  document.querySelectorAll("input").forEach(input => {
+    const qty = Number(input.value) || 0;
     if (!qty) return;
-    lines.push(
-      `${i.dataset.rarity} Material ${starLabels[i.dataset.star]} : ${qty}`
-    );
+
+    const rarity = input.dataset.rarity;
+    const star = starLabels[input.dataset.star];
+
+    rarityCount[rarity] += qty;
+    totalItems += qty;
+
+    lines.push(`${rarity} Material ${star} : ${qty}`);
   });
 
+  if (totalItems > 0) {
+    const summary = Object.entries(rarityCount)
+      .filter(([_, count]) => count > 0)
+      .map(([rarity, count]) => `${count} ${rarity}`)
+      .join(" ");
+
+    lines.unshift(
+      `Number of items sent : ${totalItems} (${summary})`
+    );
+  }
+
   lines.push(`Total Points : ${document.getElementById("totalPoint").innerText}`);
+
   navigator.clipboard.writeText(lines.join("\n"));
   showToast();
 }
 
+/* ===== Toast ===== */
 function showToast() {
   const toast = document.getElementById("toast");
   toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2000);
+  setTimeout(() => toast.classList.remove("show"), 1800);
 }
 </script>
 
