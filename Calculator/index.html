@@ -91,7 +91,24 @@ button:hover {
   background: #3d7eff;
 }
 
-/* ===== Toast (center) ===== */
+/* ===== Preview ===== */
+.preview {
+  margin-top: 16px;
+  max-width: 900px;
+  border: 1px solid #2a2f3a;
+  border-radius: 8px;
+  padding: 12px;
+  background: #12151c;
+  white-space: pre-line;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.preview[contenteditable="true"] {
+  outline: 1px dashed #5dade2;
+}
+
+/* ===== Toast ===== */
 .toast {
   position: fixed;
   top: 50%;
@@ -132,7 +149,13 @@ button:hover {
 </table>
 
 <div class="total">
-Total Points: <span id="totalPoint">0</span>
+  Total Points: <span id="totalPoint">0</span>
+</div>
+
+<div id="previewBox" class="preview"
+     contenteditable="false"
+     oninput="onPreviewEdit()">
+  <i style="opacity:.6">Result preview will appear here...</i>
 </div>
 
 <button onclick="copyResult()">📋 Copy Result</button>
@@ -140,6 +163,10 @@ Total Points: <span id="totalPoint">0</span>
 <div id="toast" class="toast">Copied to clipboard!</div>
 
 <script>
+/* ===== Elite config ===== */
+let isElite = true;          // toggle elite
+let isPreviewEdited = false;
+
 const pointTable = {
   COMMON:  [10, 15, 30, 90],
   RARE:    [30, 45, 90, 270],
@@ -162,14 +189,14 @@ Object.keys(pointTable).forEach(rarity => {
         <input type="number" min="0" placeholder="-"
           data-rarity="${rarity}"
           data-star="${i}"
-          oninput="calculate(this)">
+          oninput="calculate()">
       </td>
     `).join("")}
   `;
   tableBody.appendChild(row);
 });
 
-/* ===== Calculate points ===== */
+/* ===== Calculate ===== */
 function calculate() {
   let total = 0;
 
@@ -180,10 +207,26 @@ function calculate() {
   });
 
   document.getElementById("totalPoint").innerText = total;
+
+  // reset preview when numbers change
+  isPreviewEdited = false;
+  updatePreview();
 }
 
-/* ===== Copy result ===== */
-function copyResult() {
+/* ===== Preview edit detect ===== */
+function onPreviewEdit() {
+  if (!isElite) return;
+  isPreviewEdited = true;
+}
+
+/* ===== Build preview ===== */
+function updatePreview() {
+  const preview = document.getElementById("previewBox");
+
+  preview.contentEditable = isElite;
+
+  if (isElite && isPreviewEdited) return;
+
   let lines = [];
   let rarityCount = {
     MYTHIC: 0,
@@ -205,23 +248,35 @@ function copyResult() {
     rarityCount[rarity] += qty;
     totalItems += qty;
 
-    lines.push(`${rarity} Material ${star} : ${qty}`);
+    lines.push(
+      `<span class="${rarity}">${rarity}</span> Material ${star} : <b>${qty}</b>`
+    );
   });
 
-  if (totalItems > 0) {
-    const summary = Object.entries(rarityCount)
-      .filter(([_, count]) => count > 0)
-      .map(([rarity, count]) => `${count} ${rarity}`)
-      .join(" ");
-
-    lines.unshift(
-      `Number of items sent : ${totalItems} (${summary})`
-    );
+  if (totalItems === 0) {
+    preview.innerHTML =
+      `<i style="opacity:.6">Result preview will appear here...</i>`;
+    return;
   }
 
-  lines.push(`Total Points : ${document.getElementById("totalPoint").innerText}`);
+  const summary = Object.entries(rarityCount)
+    .filter(([_, count]) => count > 0)
+    .map(([rarity, count]) => `<b>${count}</b> <span class="${rarity}">${rarity}</span>`)
+    .join(" ");
 
-  navigator.clipboard.writeText(lines.join("\n"));
+  preview.innerHTML = `
+    <b>Number of items sent :</b> ${totalItems} (${summary})<br><br>
+    ${lines.join("<br>")}<br><br>
+    <b>Total Points :</b> ${document.getElementById("totalPoint").innerText}
+  `;
+}
+
+/* ===== Copy ===== */
+function copyResult() {
+  const text = document.getElementById("previewBox").innerText.trim();
+  if (!text || text.includes("Result preview")) return;
+
+  navigator.clipboard.writeText(text);
   showToast();
 }
 
