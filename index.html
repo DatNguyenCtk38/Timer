@@ -530,10 +530,7 @@ input:checked + .slider:before {
         const clearBtn = document.createElement('button');
         clearBtn.innerText = "🗑️";
         clearBtn.className = "btn btn-outline-secondary btn-sm";
-        clearBtn.onclick = () => {
-          timeInput.value = "";
-          timeInput.setAttribute('data-date', "");
-        };
+        clearBtn.onclick = () => row.remove();
         timeWrapper.appendChild(timeInput);
         timeWrapper.appendChild(clearBtn);
         tdTime.appendChild(timeWrapper);
@@ -542,7 +539,7 @@ input:checked + .slider:before {
         tdCountdown.innerText = t.countdown;
         const tdAction = document.createElement('td');
         const btnSave = document.createElement('button');
-        btnSave.className = "btn btn-success btn-sm me-1";
+        btnSave.className = "btn btn-success btn-sm me-1 w-100";
         btnSave.innerText = t.saveButton;
         btnSave.onclick = () => {
           const timeInput = row.cells[3].querySelector("input");
@@ -557,7 +554,7 @@ input:checked + .slider:before {
           sortTableByTime(); // Gọi hàm sắp xếp khi lưu
         };
         const btnDelete = document.createElement('button');
-        btnDelete.className = "btn btn-danger btn-sm";
+        btnDelete.className = "btn btn-danger btn-sm d-none";
         btnDelete.innerText = t.deleteButton;
         btnDelete.onclick = () => row.remove();
         tdAction.appendChild(btnSave);
@@ -823,3 +820,4 @@ input:checked + .slider:before {
     </script>
   </body>
 </html>
+
