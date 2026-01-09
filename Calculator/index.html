@@ -139,7 +139,6 @@ button:hover {
 <thead>
 <tr>
   <th>Rarity</th>
-  <th>0★</th>
   <th>1–2★</th>
   <th>3–4★</th>
   <th>5★</th>
@@ -164,18 +163,19 @@ button:hover {
 
 <script>
 /* ===== Elite config ===== */
-let isElite = true;          // toggle elite
+let isElite = true;
 let isPreviewEdited = false;
 
+/* ===== Point table (0★ REMOVED) ===== */
 const pointTable = {
-  COMMON:  [10, 15, 30, 90],
-  RARE:    [30, 45, 90, 270],
-  EPIC:    [50, 75, 150, 450],
-  LEGEND:  [100, 150, 300, 900],
-  MYTHIC:  [300, 450, 900, 2700]
+  COMMON:  [15, 30, 90],
+  RARE:    [45, 90, 270],
+  EPIC:    [75, 150, 450],
+  LEGEND:  [150, 300, 900],
+  MYTHIC:  [450, 900, 2700]
 };
 
-const starLabels = ["0*", "1-2*", "3-4*", "5*"];
+const starLabels = ["1-2*", "3-4*", "5*"];
 const tableBody = document.getElementById("table-body");
 
 /* ===== Build table ===== */
@@ -208,7 +208,7 @@ function calculate() {
 
   document.getElementById("totalPoint").innerText = total;
 
-  // reset preview when numbers change
+  // reset preview if numbers change
   isPreviewEdited = false;
   updatePreview();
 }
@@ -222,7 +222,6 @@ function onPreviewEdit() {
 /* ===== Build preview ===== */
 function updatePreview() {
   const preview = document.getElementById("previewBox");
-
   preview.contentEditable = isElite;
 
   if (isElite && isPreviewEdited) return;
