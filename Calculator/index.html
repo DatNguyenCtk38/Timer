@@ -68,6 +68,7 @@ input.filled {
 .EPIC { color: #9b59b6; }
 .LEGEND { color: #f1c40f; }
 .MYTHIC { color: #e74c3c; }
+.MYTHIC_FISH { color: #ff7675; }
 
 /* ===== Background rows ===== */
 tr.bg-COMMON { background: #161a22; }
@@ -75,6 +76,7 @@ tr.bg-RARE { background: rgba(46,204,113,.08); }
 tr.bg-EPIC { background: rgba(155,89,182,.10); }
 tr.bg-LEGEND { background: rgba(241,196,15,.12); }
 tr.bg-MYTHIC { background: rgba(231,76,60,.14); }
+tr.bg-MYTHIC_FISH { background: rgba(255,118,117,.18); }
 
 /* ===== Button ===== */
 button {
@@ -139,9 +141,9 @@ button:hover {
 <thead>
 <tr>
   <th>Rarity</th>
-  <th>1–2★</th>
-  <th>3–4★</th>
-  <th>5★</th>
+  <th>1★</th>
+  <th>2★</th>
+  <th>3★</th>
 </tr>
 </thead>
 <tbody id="table-body"></tbody>
@@ -168,14 +170,15 @@ let isPreviewEdited = false;
 
 /* ===== Point table (0★ REMOVED) ===== */
 const pointTable = {
-  COMMON:  [15, 30, 90],
-  RARE:    [45, 90, 270],
-  EPIC:    [75, 150, 450],
-  LEGEND:  [150, 300, 900],
-  MYTHIC:  [450, 900, 2700]
+  COMMON:       [15, 30, 90],
+  RARE:         [45, 90, 270],
+  EPIC:         [75, 150, 450],
+  LEGEND:       [150, 300, 900],
+  MYTHIC:       [450, 900, 2700],
+  MYTHIC_FISH:  [1350, 2400, 8100]
 };
 
-const starLabels = ["1-2*", "3-4*", "5*"];
+const starLabels = ["1★", "2★", "3★"];
 const tableBody = document.getElementById("table-body");
 
 /* ===== Build table ===== */
@@ -183,7 +186,9 @@ Object.keys(pointTable).forEach(rarity => {
   const row = document.createElement("tr");
   row.className = `bg-${rarity}`;
   row.innerHTML = `
-    <td class="${rarity}"><b>${rarity}</b></td>
+    <td class="${rarity}">
+      <b>${rarity.replace("_", " ")}</b>
+    </td>
     ${pointTable[rarity].map((_, i) => `
       <td>
         <input type="number" min="0" placeholder="-"
@@ -208,7 +213,6 @@ function calculate() {
 
   document.getElementById("totalPoint").innerText = total;
 
-  // reset preview if numbers change
   isPreviewEdited = false;
   updatePreview();
 }
@@ -228,6 +232,7 @@ function updatePreview() {
 
   let lines = [];
   let rarityCount = {
+    MYTHIC_FISH: 0,
     MYTHIC: 0,
     LEGEND: 0,
     EPIC: 0,
@@ -248,7 +253,7 @@ function updatePreview() {
     totalItems += qty;
 
     lines.push(
-      `<span class="${rarity}">${rarity}</span> Material ${star} : <b>${qty}</b>`
+      `<span class="${rarity}">${rarity.replace("_", " ")}</span> Material ${star} : <b>${qty}</b>`
     );
   });
 
@@ -260,7 +265,9 @@ function updatePreview() {
 
   const summary = Object.entries(rarityCount)
     .filter(([_, count]) => count > 0)
-    .map(([rarity, count]) => `<b>${count}</b> <span class="${rarity}">${rarity}</span>`)
+    .map(([rarity, count]) =>
+      `<b>${count}</b> <span class="${rarity}">${rarity.replace("_", " ")}</span>`
+    )
     .join(" ");
 
   preview.innerHTML = `
